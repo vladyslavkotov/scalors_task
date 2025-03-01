@@ -11,7 +11,8 @@ class Validator:
         self.precision_error = 0.011
         self.base_currency = "USD"
         self.pnl_deviation = 1 #assuming at least 1 dollar commission
-        self.validate_against_previous_day()
+        # self.validate_against_previous_day()
+        self.validate_per_position()
 
     def create_correct_quantities_start(self, data: dict[str, Position]) -> dict[str, int]:
         correct_quantities = {}
@@ -106,9 +107,15 @@ class Validator:
 
     def is_close_weight_incorrect(self, position: Position, date: str, ticker: str):
         if position.weight_close != 0 and position.nav != 0 and position.price_traded_today == 0 and position.qty_traded_today == 0:
-            expected_weight = (self.get_value_close(position))/position.nav
-            if abs(expected_weight - position.weight_close) > self.precision_error:
-                print(f"{date} {ticker} incorrect closing weight calculated {expected_weight} actual {position.weight_close}")
+            expected_weight_close = (self.get_value_close(position))/position.nav
+            if abs(expected_weight_close - position.weight_close) > self.precision_error:
+                print(f"{date} {ticker} incorrect closing weight calculated {expected_weight_close} actual {position.weight_close}")
+
+    def is_open_weight_incorrect(self, position: Position, date: str, ticker: str):
+        if position.weight_open != 0 and position.nav_yesterday != 0 and position.price_traded_today == 0 and position.qty_traded_today == 0:
+            expected_weight_open = (position.price_yesterday * position.qty_open * position.exchange_rate)/position.nav_yesterday
+            if abs(expected_weight_open - position.weight_open) > self.precision_error:
+                print(f"{date} {ticker} incorrect closing weight calculated {expected_weight_open} actual {position.weight_open}")
 
     def validate_against_previous_day(self):
         # TODO possibly change to while loop for performance
@@ -125,10 +132,11 @@ class Validator:
     def validate_per_position(self):
         for date, portfolio in self.grouped:
             for ticker, position in portfolio.items():
-                self.is_close_weight_incorrect(position,date,ticker)
-                self.is_trade_price_incorrect(position, date, ticker)
-                self.is_price_equal_to_stock_mvmt(position, date, ticker)
-                self.is_qty_incorrect(position, date, ticker)
-                self.is_value_incorrect(position, date, ticker)
-                self.is_exchange_rate_or_currency_incorrect(position, date, ticker)
+                # self.is_close_weight_incorrect(position,date,ticker)
+                # self.is_trade_price_incorrect(position, date, ticker)
+                # self.is_price_equal_to_stock_mvmt(position, date, ticker)
+                # self.is_qty_incorrect(position, date, ticker)
+                # self.is_value_incorrect(position, date, ticker)
+                # self.is_exchange_rate_or_currency_incorrect(position, date, ticker)
+                self.is_open_weight_incorrect(position,date,ticker)
 
