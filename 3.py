@@ -1,3 +1,6 @@
 from Validator import Validator
+from GroupedPositions import GroupedPositions
 
-v = Validator("Test.xlsx")
+grouped_positions = GroupedPositions.create("Test.xlsx")
+
+v = Validator(grouped_positions)
