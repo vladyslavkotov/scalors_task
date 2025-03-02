@@ -1,6 +1,6 @@
 from Position import Position
 from openpyxl import load_workbook
-from datetime import datetime
+from datetime import datetime, date
 
 
 class GroupedPositions:
@@ -14,9 +14,9 @@ class GroupedPositions:
     @staticmethod
     def group_by_date(data: list[list]) -> dict[datetime, dict[str, Position]]:
         grouped = {}
-        date = data[1][0]
+        date = data[1][0].date()
         for row in data[1:]:
-            if date == row[0]:
+            if date == row[0].date():
                 if date in grouped.keys():
                     new_pos = Position(row)
                     grouped[date][new_pos.ticker] = new_pos
@@ -26,7 +26,7 @@ class GroupedPositions:
                     grouped[date][new_pos.ticker] = new_pos
             else:
                 new_pos = Position(row)
-                date = row[0]
+                date = row[0].date()
                 grouped[date] = {}
                 grouped[date][new_pos.ticker] = new_pos
 
